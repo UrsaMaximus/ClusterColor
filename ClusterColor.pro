@@ -6,6 +6,8 @@ CONFIG += c++17
 
 VERSION = 1.0.0.0
 
+RC_ICONS = ClusterColor.ico
+
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the

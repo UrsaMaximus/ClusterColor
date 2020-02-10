@@ -53,9 +53,9 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>90</x>
      <y>10</y>
-     <width>361</width>
+     <width>181</width>
      <height>181</height>
     </rect>
    </property>
@@ -63,7 +63,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="Resources.qrc">:/images/gbs_logo_transparent.png</pixmap>
+    <pixmap resource="Resources.qrc">:/images/cluster_color_logo.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -79,7 +79,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Presents...</string>
+    <string>Greatest Bear Presents...</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -100,7 +100,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Cluster Color v1.0</string>
+    <string>ClusterColor v1.0</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -121,7 +121,7 @@
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ClusterColor is © 2019 Greatest Bear Studios. This application uses the ColorSpace library by Berendea Nicolae. Both ClusterColor and ColorSpace are free software, and are made available for use and redistribution under the MIT license. See LICENSE.txt for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ClusterColor is © 2020 Greatest Bear Studios. This application uses the ColorSpace library by Berendea Nicolae. Both ClusterColor and ColorSpace are free software, and are made available for use and redistribution under the MIT license. See LICENSE.txt for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

@@ -91,9 +91,12 @@ void ClusterColorMain::setUIEnabledState(bool filesOpen)
     ui->actionExport_Original_Palette->setEnabled(filesOpen);
     ui->actionOpen_Palette_as_Recolor->setEnabled(filesOpen);
     ui->actionEdit_Selected_Color_Group->setEnabled(filesOpen);
+    ui->actionExport_Recolored_Images->setEnabled(filesOpen);
     ui->actionAutomatic_Group_Generation->setEnabled(filesOpen);
     ui->actionAppend_Group_with_Selection->setEnabled(filesOpen);
     ui->resetPalette->setEnabled(filesOpen);
+    ui->singleGroupResetButton->setEnabled(filesOpen);
+    ui->actionReset_Selected_Recolor->setEnabled(filesOpen);
     ui->topControlsWidget->setVisible(filesOpen);
     ui->OpenImageToBeginBar->setVisible(!filesOpen);
 }
@@ -1272,4 +1275,9 @@ void ClusterColorMain::on_actionClusterColor_Preferences_triggered()
 {
     _prefs->Revert();
     _prefs->exec();
+}
+
+void ClusterColorMain::on_actionReset_Selected_Recolor_triggered()
+{
+    on_singleGroupResetButton_clicked();
 }

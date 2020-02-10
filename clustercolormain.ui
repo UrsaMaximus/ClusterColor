@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Cluster Color Sprite Tool</string>
+   <string>ClusterColor Sprite Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -305,7 +305,7 @@
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_9">
                 <property name="spacing">
-                 <number>-1</number>
+                 <number>6</number>
                 </property>
                 <property name="leftMargin">
                  <number>0</number>
@@ -639,7 +639,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -702,6 +702,7 @@
     </property>
     <addaction name="actionAutomatic_Group_Generation"/>
     <addaction name="separator"/>
+    <addaction name="actionReset_Selected_Recolor"/>
     <addaction name="actionReset_Recolors"/>
     <addaction name="actionReset_Groups"/>
    </widget>
@@ -942,6 +943,11 @@
   <action name="actionExport_Recolored_Images">
    <property name="text">
     <string>Export Recolored Images...</string>
+   </property>
+  </action>
+  <action name="actionReset_Selected_Recolor">
+   <property name="text">
+    <string>Reset Selected Recolor</string>
    </property>
   </action>
  </widget>

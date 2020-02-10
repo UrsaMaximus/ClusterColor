@@ -1,8 +1,12 @@
 <RCC>
     <qresource prefix="/images">
         <file>gbs_logo_transparent.png</file>
+        <file>cluster_color_logo.png</file>
     </qresource>
     <qresource prefix="/text">
         <file>LICENSE.txt</file>
+    </qresource>
+    <qresource prefix="/">
+        <file alias="ICON">ClusterColor.ico</file>
     </qresource>
 </RCC>

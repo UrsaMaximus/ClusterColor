@@ -122,6 +122,8 @@ private slots:
 
     void on_actionExport_Recolored_Images_triggered();
 
+    void on_actionReset_Selected_Recolor_triggered();
+
 private:
     Ui::ClusterColorMain *ui;
 
