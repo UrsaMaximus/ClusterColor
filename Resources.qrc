@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>gbs_logo_transparent.png</file>
+    </qresource>
+    <qresource prefix="/text">
+        <file>LICENSE.txt</file>
+    </qresource>
+</RCC>
