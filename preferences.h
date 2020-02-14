@@ -25,6 +25,9 @@ public:
     int PaletteExportWidth();
     bool PaletteExportIncludeMetadata();
 
+    bool GetSimpleBoolSetting(QString settingKey, bool defaultVal);
+    void SetSimpleBoolSetting(QString settingKey, bool value);
+
     ~Preferences();
 
 private slots:

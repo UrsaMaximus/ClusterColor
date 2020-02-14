@@ -75,6 +75,17 @@ void Preferences::on_buttonBox_accepted()
     Apply();
 }
 
+bool Preferences::GetSimpleBoolSetting(QString settingKey, bool defaultVal)
+{
+    return _settings->value(settingKey, defaultVal).toBool();
+}
+
+
+void Preferences::SetSimpleBoolSetting(QString settingKey, bool value)
+{
+    _settings->setValue(settingKey, value);
+}
+
 void Preferences::on_paletteFixedSize_toggled(bool checked)
 {
     ui->paletteWidth->setEnabled(checked);

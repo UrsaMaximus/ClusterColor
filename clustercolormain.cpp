@@ -14,6 +14,7 @@ ClusterColorMain::ClusterColorMain(QWidget *parent)
     ui->setupUi(this);
 
     _prefs = new Preferences(this);
+    ui->actionShow_Missing_Color_Warning->setChecked(_prefs->GetSimpleBoolSetting("ShowOrphanWarning", true));
 
     selectedImageActionGroup = nullptr;
     palette = std::make_unique<Palette>();
@@ -64,8 +65,7 @@ ClusterColorMain::ClusterColorMain(QWidget *parent)
     connect(_groupGen, SIGNAL(accepted()), this, SLOT(deleteBackupPalette()));
     connect(_groupGen, SIGNAL(rejected()), this, SLOT(restoreBackupPalette()));
 
-    setUIEnabledState(false);
-
+    updateUIEnabledState();
 
     updateOriginalDisplayEnable = true;
     updateControlDisplayEnable = true;
@@ -73,30 +73,38 @@ ClusterColorMain::ClusterColorMain(QWidget *parent)
     updateSelectedColorOverlayEnable = true;
 }
 
-void ClusterColorMain::setUIEnabledState(bool filesOpen)
+void ClusterColorMain::updateUIEnabledState()
 {
+    bool filesOpen = images.size() > 0;
+    bool paletteOpen = palette->GetPaletteGroupCount() > 0;
+
     ui->actionZoom_In->setEnabled(filesOpen);
     ui->actionZoom_Out->setEnabled(filesOpen);
     ui->actionZoom_Fit->setEnabled(filesOpen);
-    ui->actionExport_All->setEnabled(filesOpen);
+    ui->actionExport_All->setEnabled(filesOpen && paletteOpen);
     ui->actionSelect_All->setEnabled(filesOpen);
     ui->actionSelect_None->setEnabled(filesOpen);
-    ui->actionReset_Groups->setEnabled(filesOpen);
-    ui->actionReset_Recolors->setEnabled(filesOpen);
+    ui->actionReset_Groups->setEnabled(paletteOpen);
+    ui->actionReset_Recolors->setEnabled(paletteOpen);
     ui->actionSelect_Inverse->setEnabled(filesOpen);
-    ui->actionExport_Index_Image->setEnabled(filesOpen);
-    ui->actionOpen_Original_Palette->setEnabled(filesOpen);
-    ui->actionExport_Recolor_Palette->setEnabled(filesOpen);
+    ui->actionExport_Index_Image->setEnabled(filesOpen && paletteOpen);
+    ui->actionOpen_Original_Palette->setEnabled(true);
+    ui->actionExport_Recolor_Palette->setEnabled(paletteOpen);
     ui->actionIsolate_Selected_Color->setEnabled(filesOpen);
-    ui->actionExport_Original_Palette->setEnabled(filesOpen);
-    ui->actionOpen_Palette_as_Recolor->setEnabled(filesOpen);
-    ui->actionEdit_Selected_Color_Group->setEnabled(filesOpen);
-    ui->actionExport_Recolored_Images->setEnabled(filesOpen);
+    ui->actionExport_Original_Palette->setEnabled(paletteOpen);
+    ui->actionOpen_Palette_as_Recolor->setEnabled(paletteOpen);
+    ui->actionEdit_Selected_Color_Group->setEnabled(filesOpen && paletteOpen);
+    ui->actionExport_Recolored_Images->setEnabled(filesOpen && paletteOpen);
     ui->actionAutomatic_Group_Generation->setEnabled(filesOpen);
-    ui->actionAppend_Group_with_Selection->setEnabled(filesOpen);
-    ui->resetPalette->setEnabled(filesOpen);
-    ui->singleGroupResetButton->setEnabled(filesOpen);
-    ui->actionReset_Selected_Recolor->setEnabled(filesOpen);
+    ui->actionAppend_Group_with_Selection->setEnabled(filesOpen && paletteOpen);
+    ui->resetPalette->setEnabled(true);
+    ui->singleGroupResetButton->setEnabled(paletteOpen);
+    ui->actionReset_Selected_Recolor->setEnabled(paletteOpen);
+    ui->actionScan_for_Orphaned_Colors->setEnabled(filesOpen);
+    ui->scanForOrphanButton->setEnabled(filesOpen);
+    ui->scanForOrphanButton->setVisible(!paletteOpen);
+    ui->actionClose_All_Images->setEnabled(filesOpen);
+    ui->actionClose_Palette->setEnabled(paletteOpen);
     ui->topControlsWidget->setVisible(filesOpen);
     ui->OpenImageToBeginBar->setVisible(!filesOpen);
 }
@@ -247,7 +255,15 @@ void ClusterColorMain::imageClicked(QPoint pixelLocation, ImageViewer* source)
         {
             auto group = palette->GetPaletteGroupContainingColor(colorImage->pixelColor(pixelLocation));
 
-            if (group == nullptr)
+            if (group == nullptr && colorImage->pixelColor(pixelLocation).alphaF() > 0 && ui->actionShow_Missing_Color_Warning->isChecked())
+            {
+                QMessageBox msgBox;
+                msgBox.setText("Missing color warning!");
+                msgBox.setInformativeText("You clicked on a color not present in your palette. Colors not in your palette cannot be selected. Scan for orphan colors in the Color Groups menu to update you palette. This message can be disabled in the Selection menu.");
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                msgBox.exec();
+            }
+            else if (group == nullptr)
             {
                 changeSelectedColors(nullptr, shiftHeld);
             }
@@ -259,7 +275,20 @@ void ClusterColorMain::imageClicked(QPoint pixelLocation, ImageViewer* source)
         }
         else
         {
-            changeSelectedColors(palette->GetPaletteColor(colorImage->pixelColor(pixelLocation)), shiftHeld);
+            auto paletteColor = palette->GetPaletteColor(colorImage->pixelColor(pixelLocation));
+
+            if (paletteColor == nullptr && colorImage->pixelColor(pixelLocation).alphaF() > 0 && ui->actionShow_Missing_Color_Warning->isChecked())
+            {
+                QMessageBox msgBox;
+                msgBox.setText("Missing color warning!");
+                msgBox.setInformativeText("You clicked on a color not present in your palette. Colors not in your palette cannot be selected. Scan for orphan colors in the Color Groups menu to update you palette. This message can be disabled in the Selection menu.");
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                msgBox.exec();
+            }
+            else
+            {
+                changeSelectedColors(paletteColor, shiftHeld);
+            }
         }
     }
 }
@@ -366,138 +395,134 @@ void ClusterColorMain::on_actionOpen_Color_Image_triggered()
 {
     bool sizeWarningDismissed = false;
     bool highColorWarningDismissed = false;
+    bool allowChangePalette = palette->IsEmpty();  // Only allow automatic altering of empty palettes
 
     QStringList filenames = QFileDialog::getOpenFileNames(this, tr("Open Color Images"), "", tr("Image Files (*.png)"));
     if (!filenames.isEmpty())
     {
-        // Reset everything
-        images.clear();
-        *palette = Palette();
-
         // Read in all the files and add their colors to the palette
         for (auto& filename : filenames)
         {
-            images[filename] = std::make_unique<QImage>(filename);
+            auto img = std::make_unique<QImage>(filename);
+            Palette backup = *palette;
 
-            if (!sizeWarningDismissed && images[filename]->sizeInBytes() > 67108864l)
+            if (!sizeWarningDismissed && img->sizeInBytes() > 67108864l)
             {
                 QMessageBox msgBox;
                 msgBox.setText("Image Dimension Warning!");
                 msgBox.setInformativeText("You are loading a very large image. The maximum reccomended image dimensions for ClusterColor are 4096x4096. If you open this image, you may experience very poor performance and crashes.");
-                msgBox.setStandardButtons(QMessageBox::Open | QMessageBox::Abort);
-                msgBox.setDefaultButton(QMessageBox::Abort);
+                msgBox.setStandardButtons(QMessageBox::Open | QMessageBox::Cancel);
+                msgBox.setDefaultButton(QMessageBox::Cancel);
                 int ret = msgBox.exec();
 
-                if (ret == QMessageBox::Abort)
+                if (ret == QMessageBox::Cancel)
                 {
-                    images.clear();
-                    *palette = Palette();
-                    filenames = QStringList();
-                    break;
+                    *palette = backup;
+                    continue;
                 }
                 sizeWarningDismissed = true;
             }
 
-            palette->AddImageColors(*images[filename]);
-
-            if (!highColorWarningDismissed && palette->GetPaletteColorCount() > 10000)
+            if (allowChangePalette)
             {
-                QMessageBox msgBox;
-                msgBox.setText("Color Palette Warning!");
-                msgBox.setInformativeText("You have loaded an image containing over 10000 unique colors. ClusterColor works best on limited color sprite artwork. You may experience poor performance if you open this image.");
-                msgBox.setStandardButtons(QMessageBox::Open | QMessageBox::Abort);
-                msgBox.setDefaultButton(QMessageBox::Abort);
-                int ret = msgBox.exec();
+                palette->AddImageColors(*img);
 
-                if (ret == QMessageBox::Abort)
+                if (!highColorWarningDismissed && palette->GetPaletteColorCount() > 10000)
                 {
-                    images.clear();
-                    *palette = Palette();
-                    filenames = QStringList();
-                    break;
+                    QMessageBox msgBox;
+                    msgBox.setText("Color Palette Warning!");
+                    msgBox.setInformativeText("You have loaded an image containing over 10000 unique colors. ClusterColor works best on limited color sprite artwork. You may experience poor performance if you open this image.");
+                    msgBox.setStandardButtons(QMessageBox::Open | QMessageBox::Cancel);
+                    msgBox.setDefaultButton(QMessageBox::Cancel);
+                    int ret = msgBox.exec();
+
+                    if (ret == QMessageBox::Cancel)
+                    {
+                        *palette = backup;
+                        continue;
+                    }
+                    highColorWarningDismissed = true;
                 }
-                highColorWarningDismissed = true;
             }
+
+            images[filename] = std::move(img);
+            selectedImage = filename;
         }
 
-        // Set a selected image and show the original version
-        if (filenames.size() > 0)
-            selectedImage = filenames[0];
-        else
-            selectedImage = nullptr;
-
-        populateImageMenu(filenames);
+        populateImageMenu();
 
         // Generate the palette groups
-        palette->Reset();
-        constructSwatches();
+        if (allowChangePalette)
+        {
+            palette->CreateOrphanGroup();
+            constructSwatches();
+        }
 
         // Update all displays
         updateOriginalDisplay();
         updateControlDisplay();
         updateRecolorDisplay();
 
-        setUIEnabledState(filenames.size() > 0);
+        updateUIEnabledState();
     }
 }
 
 void ClusterColorMain::on_actionOpen_Index_Image_triggered()
 {
+    bool allowChangePalette = palette->IsEmpty();
+
     QStringList filenames = QFileDialog::getOpenFileNames(this, tr("Open Index Images"), "", tr("Image Files (*.png)"));
     if (!filenames.isEmpty())
     {
-        // Try to autodetect the original palette
-        QFileInfo firstImageInfo(filenames[0]);
-        QDir selectedImageDir = firstImageInfo.dir();
-        QString hash = firstImageInfo.fileName().right(12).left(8);
-        QString paletteFileName = selectedImageDir.filePath(QString("Palette_p%1.png").arg(hash));
-        if (!QFileInfo::exists(paletteFileName))
+        if (allowChangePalette)
         {
-            QMessageBox msgBox;
-            msgBox.setText("The original palette for these index images could not be automatically found. Please select one.");
-            msgBox.exec();
-
-            paletteFileName = QFileDialog::getOpenFileName(this, tr("Locate Original Palette"), "", tr("Image Files (*.png)"));
-        }
-
-        if (!paletteFileName.isNull())
-        {
-            // Clear all loaded data
-            images.clear();
-            *palette = Palette();
-            clearSwatches();
-
-            // Read in the palette
-            try
-            {
-                palette->LoadFromPaletteImage(QImage(paletteFileName), true, true, false);
-            }
-            catch (std::runtime_error& err)
+            // Try to autodetect the original palette
+            QFileInfo firstImageInfo(filenames[0]);
+            QDir selectedImageDir = firstImageInfo.dir();
+            QString hash = firstImageInfo.fileName().right(12).left(8);
+            QString paletteFileName = selectedImageDir.filePath(QString("Palette_p%1.png").arg(hash));
+            if (!QFileInfo::exists(paletteFileName))
             {
                 QMessageBox msgBox;
-                msgBox.setText(err.what());
+                msgBox.setText("The original palette for these index images could not be automatically found. Please select one.");
                 msgBox.exec();
-                return;
+
+                paletteFileName = QFileDialog::getOpenFileName(this, tr("Locate Original Palette"), "", tr("Image Files (*.png)"));
             }
 
-
-            // Read in all the files and convert them to color images
-            for (auto& filename : filenames)
+            if (!paletteFileName.isNull())
             {
-                images[filename] =  palette->CreateColorImage(QImage(filename));
+                // Read in the palette
+                try
+                {
+                    palette->LoadFromPaletteImage(QImage(paletteFileName), true, true, true);
+                }
+                catch (std::runtime_error& err)
+                {
+                    QMessageBox msgBox;
+                    msgBox.setText(err.what());
+                    msgBox.exec();
+                    return;
+                }
             }
-
-            // Set a selected image and update all the displays
-            selectedImage = filenames[0];
-            populateImageMenu(filenames);
-
-            constructSwatches();
-            updateOriginalDisplay();
-            updateControlDisplay();
-            updateRecolorDisplay();
-
-            setUIEnabledState(filenames.size() > 0);
         }
+
+        // Read in all the files and convert them to color images
+        for (auto& filename : filenames)
+        {
+            images[filename] =  palette->CreateColorImage(QImage(filename));
+            selectedImage = filename;
+        }
+
+        // Set a selected image and update all the displays
+        populateImageMenu();
+
+        constructSwatches();
+        updateOriginalDisplay();
+        updateControlDisplay();
+        updateRecolorDisplay();
+
+        updateUIEnabledState();
     }
 }
 
@@ -697,9 +722,13 @@ void ClusterColorMain::on_actionOpen_Original_Palette_triggered()
 
     if (!paletteFileName.isNull())
     {
+        // Clear the palette
+        *palette = Palette();
+        clearSwatches();
+
         try
         {
-            palette->LoadFromPaletteImage(QImage(paletteFileName), false, true, false);
+            palette->LoadFromPaletteImage(QImage(paletteFileName), true, true, true);
         }
         catch (std::runtime_error& err)
         {
@@ -712,6 +741,7 @@ void ClusterColorMain::on_actionOpen_Original_Palette_triggered()
         constructSwatches();
         updateControlDisplay();
         updateRecolorDisplay();
+        updateUIEnabledState();
     }
 }
 
@@ -921,6 +951,8 @@ void ClusterColorMain::autoGenerateGroups(int numberOfClusters, bool saveRecolor
     // Update the displays
     updateControlDisplay();
     updateRecolorDisplay();
+
+    updateUIEnabledState();
 }
 
 void ClusterColorMain::on_actionAutomatic_Group_Generation_triggered()
@@ -950,6 +982,7 @@ void ClusterColorMain::restoreBackupPalette()
         constructSwatches();
         updateControlDisplay();
         updateRecolorDisplay();
+        updateUIEnabledState();
     }
 }
 
@@ -970,17 +1003,16 @@ void ClusterColorMain::on_actionReset_Groups_triggered()
     if (ret == QMessageBox::Reset)
     {
         palette->Reset();
-        constructSwatches();
-        updateControlDisplay();
-        updateRecolorDisplay();
+        on_actionScan_for_Orphaned_Colors_triggered();
     }
+    updateUIEnabledState();
 }
 
 #define EndColorGroupsMenuActions }
 
 #define ImageMenuActions {
 
-void ClusterColorMain::populateImageMenu(QStringList filenames)
+void ClusterColorMain::populateImageMenu()
 {
     ui->menuImages->clear();
     if (selectedImageActionGroup != nullptr)
@@ -995,9 +1027,9 @@ void ClusterColorMain::populateImageMenu(QStringList filenames)
 
     connect(selectedImageActionGroup, SIGNAL(triggered(QAction *)), this, SLOT(on_changedSelectedFile(QAction *)));
 
-    for (auto& filename : filenames)
+    for (auto& imgPair : images)
     {
-        QAction* fileSelectAction = new QAction(filename, selectedImageActionGroup);
+        QAction* fileSelectAction = new QAction(imgPair.first, selectedImageActionGroup);
         fileSelectAction->setCheckable(true);
         ui->menuImages->addAction(fileSelectAction);
     }
@@ -1280,4 +1312,62 @@ void ClusterColorMain::on_actionClusterColor_Preferences_triggered()
 void ClusterColorMain::on_actionReset_Selected_Recolor_triggered()
 {
     on_singleGroupResetButton_clicked();
+}
+
+void ClusterColorMain::on_actionScan_for_Orphaned_Colors_triggered()
+{
+    int origSwatchSize = _swatches.size();
+
+    // Go over all open images and add their colors
+    for (auto& imgPair : images)
+    {
+        palette->AddImageColors(*imgPair.second);
+    }
+
+    // Tell the palette to create an orphan group
+    palette->CreateOrphanGroup();
+
+    // Update the swatches
+    constructSwatches();
+
+    // Select the last swatch if a group was created
+    if (_swatches.size() > (int)origSwatchSize)
+        changeSelectedGroup(_swatches[_swatches.size()-1]);
+
+    updateControlDisplay();
+    updateRecolorDisplay();
+    updateUIEnabledState();
+}
+
+void ClusterColorMain::on_actionClose_Palette_triggered()
+{
+    palette->Reset();
+    clearSwatches();
+    changeSelectedGroup(nullptr);
+    updateUIEnabledState();
+    updateOriginalDisplay();
+    updateControlDisplay();
+    updateRecolorDisplay();
+}
+
+void ClusterColorMain::on_actionClose_All_Images_triggered()
+{
+    selectedImage = nullptr;
+    images.clear();
+    populateImageMenu();
+    updateUIEnabledState();
+    updateOriginalDisplay();
+    updateControlDisplay();
+    updateRecolorDisplay();
+}
+
+void ClusterColorMain::on_scanForOrphanButton_clicked()
+{
+    on_actionScan_for_Orphaned_Colors_triggered();
+    updateUIEnabledState();
+}
+
+void ClusterColorMain::on_actionShow_Missing_Color_Warning_toggled(bool arg1)
+{
+    _prefs->SetSimpleBoolSetting("ShowOrphanWarning", arg1);
 }

@@ -124,6 +124,16 @@ private slots:
 
     void on_actionReset_Selected_Recolor_triggered();
 
+    void on_actionScan_for_Orphaned_Colors_triggered();
+
+    void on_actionClose_Palette_triggered();
+
+    void on_actionClose_All_Images_triggered();
+
+    void on_scanForOrphanButton_clicked();
+
+    void on_actionShow_Missing_Color_Warning_toggled(bool arg1);
+
 private:
     Ui::ClusterColorMain *ui;
 
@@ -162,12 +172,12 @@ private:
     PaletteGroupRemapParams _originalRemapParams; // store remap params temporarily while the color picker is open
 
     std::shared_ptr<QImage> getSelectedImage();
-    void populateImageMenu(QStringList imageFilePaths);
+    void populateImageMenu();
 
     void linkScrolling(bool bypassVisibilityCheck = false);
     std::vector<QMetaObject::Connection> scrollLinks;
 
-    void setUIEnabledState(bool filesOpen);
+    void updateUIEnabledState();
 
     QActionGroup* selectedImageActionGroup;
 

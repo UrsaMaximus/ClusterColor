@@ -9,6 +9,7 @@
 class Palette
 {
 public:
+
     Palette();
 
     // Scan through the provided image, adding any new pixel colors to the palette
@@ -20,7 +21,7 @@ public:
     // Scan the provided palette image for groups an colors
     void LoadFromPaletteImage(const QImage& image, bool loadColors, bool loadGroups, bool loadParams);
 
-    // Reset to a default state with all colors in a single group
+    // Reset to a default state with no colors or groups
     void Reset();
 
     // Reset all group remaps to the control color
@@ -84,9 +85,11 @@ public:
     // Otherwise it's a big mess.
     QString GetPaletteStructureMD5(bool includeMetadata);
 
+    bool IsEmpty();
+
 private:
     ColorList getSpacedColorList();
-    std::shared_ptr<PaletteColor> addPaletteColor(const QColor&);
+    std::shared_ptr<PaletteColor> addPaletteColor(const QColor& color);
     void removeEmptyGroups();
 
     ColorList _colors; // A flat list of all colors

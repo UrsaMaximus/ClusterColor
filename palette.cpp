@@ -97,8 +97,8 @@ static void writeStripToImage(QImage& image, int baseX, int baseY, int offset, c
 void Palette::Reset()
 {
     _groups.clear();
-    if (GetPaletteColorCount() > 0)
-        _groups.push_back(std::make_shared<PaletteGroup>(GetAllColors()));
+    _colors.clear();
+    _colorIndex.clear();
 }
 
 void Palette::ResetRemaps()
@@ -809,4 +809,9 @@ QString Palette::GetPaletteStructureMD5(bool includeMetadata)
     QString hashStr = QString(hash.toHex().toUpper());
     hashStr.truncate(8);
     return hashStr;
+}
+
+bool Palette::IsEmpty()
+{
+    return _colors.size() == 0;
 }

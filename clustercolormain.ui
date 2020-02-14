@@ -178,6 +178,13 @@
              <property name="bottomMargin">
               <number>12</number>
              </property>
+             <item>
+              <widget class="QPushButton" name="scanForOrphanButton">
+               <property name="text">
+                <string>Create Palette</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -639,7 +646,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -648,16 +655,18 @@
     </property>
     <addaction name="actionOpen_Color_Image"/>
     <addaction name="actionOpen_Index_Image"/>
-    <addaction name="separator"/>
     <addaction name="actionOpen_Original_Palette"/>
     <addaction name="actionOpen_Palette_as_Recolor"/>
     <addaction name="separator"/>
+    <addaction name="actionClose_All_Images"/>
+    <addaction name="actionClose_Palette"/>
+    <addaction name="separator"/>
     <addaction name="actionExport_All"/>
     <addaction name="separator"/>
+    <addaction name="actionExport_Recolored_Images"/>
     <addaction name="actionExport_Index_Image"/>
     <addaction name="actionExport_Original_Palette"/>
     <addaction name="actionExport_Recolor_Palette"/>
-    <addaction name="actionExport_Recolored_Images"/>
     <addaction name="separator"/>
     <addaction name="actionClusterColor_Preferences"/>
    </widget>
@@ -695,6 +704,8 @@
     <addaction name="actionSelect_None"/>
     <addaction name="actionSelect_Inverse"/>
     <addaction name="actionSelect_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_Missing_Color_Warning"/>
    </widget>
    <widget class="QMenu" name="menuClusters">
     <property name="title">
@@ -705,6 +716,8 @@
     <addaction name="actionReset_Selected_Recolor"/>
     <addaction name="actionReset_Recolors"/>
     <addaction name="actionReset_Groups"/>
+    <addaction name="separator"/>
+    <addaction name="actionScan_for_Orphaned_Colors"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -948,6 +961,29 @@
   <action name="actionReset_Selected_Recolor">
    <property name="text">
     <string>Reset Selected Recolor</string>
+   </property>
+  </action>
+  <action name="actionScan_for_Orphaned_Colors">
+   <property name="text">
+    <string>Scan for Orphaned Colors</string>
+   </property>
+  </action>
+  <action name="actionClose_All_Images">
+   <property name="text">
+    <string>Close All Images</string>
+   </property>
+  </action>
+  <action name="actionClose_Palette">
+   <property name="text">
+    <string>Close Palette</string>
+   </property>
+  </action>
+  <action name="actionShow_Missing_Color_Warning">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Missing Color Warning</string>
    </property>
   </action>
  </widget>
