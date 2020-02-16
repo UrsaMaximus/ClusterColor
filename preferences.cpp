@@ -32,6 +32,7 @@ void Preferences::WriteDefaults()
     setDefault("PaletteExportHeight", 16);
     setDefault("PaletteExportWidth", 16);
     setDefault("PaletteExportIncludeMetadata", true);
+    setDefault("PaletteExportIncludeHash", true);
 }
 
 bool Preferences::PaletteExportAutosize()
@@ -54,12 +55,19 @@ bool Preferences::PaletteExportIncludeMetadata()
     return _settings->value("PaletteExportIncludeMetadata").toBool();
 }
 
+bool Preferences::PaletteExportIncludeHash()
+{
+    return _settings->value("PaletteExportIncludeHash").toBool();
+}
+
 void Preferences::Revert()
 {
     ui->paletteAutoSize->setChecked(PaletteExportAutosize());
+    ui->paletteFixedSize->setChecked(!PaletteExportAutosize());
     ui->paletteHeight->setValue(PaletteExportHeight());
     ui->paletteWidth->setValue(PaletteExportWidth());
     ui->includeMetadata->setChecked(PaletteExportIncludeMetadata());
+    ui->includeHash->setChecked(PaletteExportIncludeHash());
 }
 
 void Preferences::Apply()
@@ -68,6 +76,7 @@ void Preferences::Apply()
     _settings->setValue("PaletteExportHeight", ui->paletteHeight->value());
     _settings->setValue("PaletteExportWidth", ui->paletteWidth->value());
     _settings->setValue("PaletteExportIncludeMetadata", ui->includeMetadata->isChecked());
+    _settings->setValue("PaletteExportIncludeHash", ui->includeHash->isChecked());
 }
 
 void Preferences::on_buttonBox_accepted()

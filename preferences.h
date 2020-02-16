@@ -24,6 +24,7 @@ public:
     int PaletteExportHeight();
     int PaletteExportWidth();
     bool PaletteExportIncludeMetadata();
+    bool PaletteExportIncludeHash();
 
     bool GetSimpleBoolSetting(QString settingKey, bool defaultVal);
     void SetSimpleBoolSetting(QString settingKey, bool value);

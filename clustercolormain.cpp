@@ -479,9 +479,14 @@ void ClusterColorMain::on_actionOpen_Index_Image_triggered()
             // Try to autodetect the original palette
             QFileInfo firstImageInfo(filenames[0]);
             QDir selectedImageDir = firstImageInfo.dir();
-            QString hash = firstImageInfo.fileName().right(12).left(8);
-            QString paletteFileName = selectedImageDir.filePath(QString("Palette_p%1.png").arg(hash));
-            if (!QFileInfo::exists(paletteFileName))
+
+            QString paletteFileName = "";
+            if (firstImageInfo.fileName().size() > 12)
+            {
+                QString hash = firstImageInfo.fileName().right(12).left(8);
+                paletteFileName = selectedImageDir.filePath(QString("Palette_p%1.png").arg(hash));
+            }
+            if (paletteFileName.isEmpty() || !QFileInfo::exists(paletteFileName))
             {
                 QMessageBox msgBox;
                 msgBox.setText("The original palette for these index images could not be automatically found. Please select one.");
@@ -554,6 +559,12 @@ void ClusterColorMain::on_actionExport_Index_Image_triggered()
     QFileInfo selectedImageInfo(selectedImage);
     QDir selectedImageDir = selectedImageInfo.dir();
 
+    QString hash = "";
+    if (_prefs->PaletteExportIncludeHash())
+    {
+        hash = QString("_p%1").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+    }
+
     QString dirPath = QFileDialog::getExistingDirectory(this, tr("Save Index Images"), selectedImageDir.path());
 
     if (!dirPath.isNull())
@@ -566,7 +577,9 @@ void ClusterColorMain::on_actionExport_Index_Image_triggered()
                 QFileInfo colorImagePath(colorImage.first);
                 QString colorImageName = colorImagePath.fileName();
                 colorImageName.truncate(colorImageName.size()-4);
-                QString indexImageName = QString("%1_idx_p%2.png").arg(colorImageName, palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+
+
+                QString indexImageName = QString("%1_idx%2.png").arg(colorImageName, hash);
                 QString indexImageFilePath = chosenDir.filePath(indexImageName);
                 palette->CreateIndexImage(*colorImage.second, true)->save(indexImageFilePath);
             }
@@ -585,7 +598,13 @@ void ClusterColorMain::on_actionExport_Index_Image_triggered()
 
 void ClusterColorMain::on_actionExport_Recolor_Palette_triggered()
 {
-    QString recolorPaletteName = QString("Recolor_p%1.png").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+    QString hash = "";
+    if (_prefs->PaletteExportIncludeHash())
+    {
+        hash = QString("_p%1").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+    }
+
+    QString recolorPaletteName = QString("Recolor%1.png").arg(hash);
     QFileInfo selectedImageInfo(selectedImage);
     QDir selectedImageDir = selectedImageInfo.dir();
     QString recolorPath = selectedImageDir.filePath(recolorPaletteName);
@@ -611,7 +630,13 @@ void ClusterColorMain::on_actionExport_Recolor_Palette_triggered()
 
 void ClusterColorMain::on_actionExport_Original_Palette_triggered()
 {
-    QString recolorPaletteName = QString("Palette_p%1.png").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+    QString hash = "";
+    if (_prefs->PaletteExportIncludeHash())
+    {
+        hash = QString("_p%1").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+    }
+
+    QString recolorPaletteName = QString("Palette%1.png").arg(hash);
     QFileInfo selectedImageInfo(selectedImage);
     QDir selectedImageDir = selectedImageInfo.dir();
     QString recolorPath = selectedImageDir.filePath(recolorPaletteName);
@@ -640,6 +665,12 @@ void ClusterColorMain::on_actionExport_All_triggered()
     QFileInfo selectedImageInfo(selectedImage);
     QDir selectedImageDir = selectedImageInfo.dir();
 
+    QString hash = "";
+    if (_prefs->PaletteExportIncludeHash())
+    {
+        hash = QString("_p%1").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+    }
+
     QString dirPath = QFileDialog::getExistingDirectory(this, tr("Save Recolor Set"), selectedImageDir.path());
 
     if (!dirPath.isNull())
@@ -653,17 +684,17 @@ void ClusterColorMain::on_actionExport_All_triggered()
                 QFileInfo colorImagePath(colorImage.first);
                 QString colorImageName = colorImagePath.fileName();
                 colorImageName.truncate(colorImageName.size()-4);
-                QString indexImageName = QString("%1_indexed_p%2.png").arg(colorImageName, palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+                QString indexImageName = QString("%1_idx%2.png").arg(colorImageName, hash);
                 QString indexImageFilePath = chosenDir.filePath(indexImageName);
                 palette->CreateIndexImage(*colorImage.second, _prefs->PaletteExportIncludeMetadata())->save(indexImageFilePath);
             }
 
-            QString originalName = QString("Palette_p%1.png").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+            QString originalName = QString("Palette%1.png").arg(hash);
             QString originalPath = chosenDir.filePath(originalName);
             auto originalImage = palette->SaveToPaletteImage(false, _prefs->PaletteExportIncludeMetadata(), _prefs->PaletteExportAutosize(), _prefs->PaletteExportWidth(), _prefs->PaletteExportHeight());
             originalImage->save(originalPath);
 
-            QString recolorName = QString("Recolor_p%1.png").arg(palette->GetPaletteStructureMD5(_prefs->PaletteExportIncludeMetadata()));
+            QString recolorName = QString("Recolor%1.png").arg(hash);
             QString recolorPath = chosenDir.filePath(recolorName);
             auto recolorImage = palette->SaveToPaletteImage(true,  _prefs->PaletteExportIncludeMetadata(), _prefs->PaletteExportAutosize(), _prefs->PaletteExportWidth(), _prefs->PaletteExportHeight());
             recolorImage->save(recolorPath);
