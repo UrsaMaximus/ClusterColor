@@ -19,6 +19,14 @@ PaletteColor::PaletteColor(QColor color)
 
 float PaletteColor::normalizeH(float h)
 {
+    if (isinf(h) || isnan(h))
+        h = 0;
+
+    h = fmod(h , 1.0f);
+
+    if (isinf(h) || isnan(h))
+        h = 0;
+
     while (h > 1.0f)
         h -= 1.0f;
     while (h < 0.0f)
@@ -64,6 +72,10 @@ void PaletteColor::SetRemapParams(const QColor& originalColorCentroid, const Pal
         float remapV = normalizeV(originalColorCentroid.valueF() + groupParams.valueFShift + dV);
 
         _remappedColor = QColor::fromHsvF(remapH, remapS, remapV).convertTo(QColor::Spec::Rgb);
+
+        if (_remappedColor.spec() == QColor::Spec::Invalid)
+            _remappedColor = QColor(255, 0, 255);
+
     }
 }
 
