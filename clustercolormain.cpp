@@ -500,7 +500,7 @@ void ClusterColorMain::on_actionOpen_Index_Image_triggered()
                 // Read in the palette
                 try
                 {
-                    palette->LoadFromPaletteImage(QImage(paletteFileName), true, true, true);
+                    palette->LoadFromPaletteImage(QImage(paletteFileName), true, true);
                 }
                 catch (std::runtime_error& err)
                 {
@@ -539,7 +539,7 @@ void ClusterColorMain::on_actionOpen_Palette_as_Recolor_triggered()
     {
         try
         {
-            palette->LoadFromPaletteImage(QImage(paletteFileName), false, false, true);
+            palette->LoadFromPaletteImage(QImage(paletteFileName), false, true);
         }
         catch (std::runtime_error& err)
         {
@@ -759,7 +759,7 @@ void ClusterColorMain::on_actionOpen_Original_Palette_triggered()
 
         try
         {
-            palette->LoadFromPaletteImage(QImage(paletteFileName), true, true, true);
+            palette->LoadFromPaletteImage(QImage(paletteFileName), true, true);
         }
         catch (std::runtime_error& err)
         {

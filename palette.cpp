@@ -143,82 +143,80 @@ std::shared_ptr<PaletteColor> Palette::addPaletteColor(const QColor& pxColor)
 }
 
 // Scan the provided palette image for groups and colors
-void Palette::LoadFromPaletteImage(const QImage& image, bool loadColors, bool loadGroups, bool loadParams)
+void Palette::LoadFromPaletteImage(const QImage& image, bool loadOriginal, bool loadParams)
 {
     // Read the image in as strips
     std::vector<std::vector<QColor>> strips = readImageAsStrips(image);
 
     // Empty palette check
+    if (strips.size() == 0)
+        throw std::runtime_error("Palette contained no colors!");
+
+    // Handle cases where we are loading legacy palettes without metadata
     int paletteGroups = strips.size()-1;
     if (paletteGroups <= 0)
-        throw std::runtime_error("Palette contained no groups!");
+    {
+        paletteGroups = 1;
+        loadParams = false;
+    }
 
     // Color uniqueness check
-    if (loadColors)
+    if (loadOriginal)
     {
         std::map<QRgb,bool> uniqueColors;
         for (int i=0; i < paletteGroups; ++i)
         {
             for (auto& color : strips[i])
             {
-                if (uniqueColors.find(color.rgba()) != uniqueColors.end())
-                    throw std::runtime_error("Palette contains repeat colors! Original palettes may not contain repeat colors. Is this a remap palette?");
-                else
-                    uniqueColors[color.rgba()] = true;
+                if (color.alphaF() > 0) // Don't check uniqueness of transparent colors
+                {
+                    if (uniqueColors.find(color.rgba()) != uniqueColors.end())
+                        throw std::runtime_error("Palette contains repeat colors! Original palettes may not contain repeat colors. Is this a remap palette?");
+                    else
+                        uniqueColors[color.rgba()] = true;
+                }
             }
         }
     }
 
     // If we aren't going to be loading groups, then use the groups we have
-    if (!loadGroups)
+    if (!loadOriginal)
         paletteGroups = _groups.size();
 
     // Metadata individual size check
-    int metadataSizeInPalette = strips[strips.size()-1].size();
-    if (metadataSizeInPalette % PaletteGroupRemapParams::rgbRepLength() != 0)
-        throw std::runtime_error("Invalid metadata size!");
+    if (loadParams)
+    {
+        int metadataSizeInPalette = strips[strips.size()-1].size();
+        if (metadataSizeInPalette % PaletteGroupRemapParams::rgbRepLength() != 0)
+            throw std::runtime_error("Invalid metadata size!");
 
-    // Metadata quantity check
-    int metadataGroups = metadataSizeInPalette/PaletteGroupRemapParams::rgbRepLength();
-    if (metadataGroups != paletteGroups)
-        throw std::runtime_error("Metadata not present for every palette!");
+        // Metadata quantity check
+        int metadataGroups = metadataSizeInPalette/PaletteGroupRemapParams::rgbRepLength();
+        if (metadataGroups != paletteGroups)
+            throw std::runtime_error("Metadata not present for every palette!");
+    }
 
     // At this point we are cleared to load without crashing, so we can commit
 
     // Clear out everything
-    if (loadGroups)
+    if (loadOriginal)
     {
-        _groups.clear();
-    }
+        Reset();
 
-    if (loadColors)
-    {
-        _colors.clear();
-        _colorIndex.clear();
-    }
-
-    for (int i=0; i < paletteGroups; ++i)
-    {
-        // Create a color list from the strip
-        ColorList colors;
-
-        for (auto& qcolor : strips[i])
+        for (int i=0; i < paletteGroups; ++i)
         {
-            if (loadColors)
-            {
-                colors.push_back(addPaletteColor(qcolor));
-            }
-            else
-            {
-                auto existingColor = GetPaletteColor(qcolor);
-                if (existingColor != nullptr)
-                    colors.push_back(existingColor);
-            }
-        }
+            // Create a color list from the strip
+            ColorList colors;
 
-        // Create a group for this color list (even if it's empty!)
-        if (loadGroups)
-        {
+            for (auto& qcolor : strips[i])
+            {
+                if (qcolor.alphaF() > 0) // original colors MUST have an alpha above 0
+                {
+                    colors.push_back(addPaletteColor(qcolor));
+                }
+            }
+
+            // Create a group for this color list (even if it's empty!)
             CreateGroup(colors);
         }
     }

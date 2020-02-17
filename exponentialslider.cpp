@@ -38,11 +38,15 @@ float ExponentialSlider::value()
 
     float exp = ((float)(sliderVal - sliderMin) / (float)(sliderMax-sliderMin) * (_exponentMax-_exponentMin)) + _exponentMin;
 
-    return pow(_base, exp);
+    return pow(_base, exp) * (_negative ? -1.0f : 1.0f);
 }
 
 void ExponentialSlider::setValue(float newValue)
 {
+    _negative = newValue < 0;
+    updateSignLabel();
+    newValue = abs(newValue);
+
     float exp = log(newValue) / log(_base);
 
     if (exp < _exponentMin)
@@ -87,6 +91,18 @@ void ExponentialSlider::setExponentialMapping(float base, float exponentMin, flo
 
 void ExponentialSlider::on_horizontalSlider_valueChanged(int slider)
 {
-    ui->valueLabel->setText(QString("%1x").arg(QString::number(value(), 'f', 2)));
+    ui->valueLabel->setText(QString("%1x").arg(QString::number(abs(value()), 'f', 2)));
     onValueChanged(value());
+}
+
+void ExponentialSlider::on_signLabel_linkActivated(const QString &link)
+{
+    _negative = !_negative;
+    updateSignLabel();
+    onValueChanged(value());
+}
+
+void ExponentialSlider::updateSignLabel()
+{
+    ui->signLabel->setText(QString("<html><head/><body><a href=\"#\">%1</a></body></html>").arg(_negative ? "-" : "+"));
 }

@@ -28,8 +28,12 @@ signals:
 private slots:
     void on_horizontalSlider_valueChanged(int value);
 
+    void on_signLabel_linkActivated(const QString &link);
+
 private:
     Ui::ExponentialSlider *ui;
+
+    void updateSignLabel();
 
     bool _enableLowerEndcap;
     bool _enableUpperEndcap;
@@ -38,6 +42,7 @@ private:
     float _base;
     float _exponentMin;
     float _exponentMax;
+    bool _negative;
 };
 
 #endif // EXPONENTIALSCALESLIDER_H

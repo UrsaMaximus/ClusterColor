@@ -19,7 +19,7 @@ public:
     std::unique_ptr<QImage> SaveToPaletteImage(bool useRemap, bool saveMetadata, bool autosize, int width, int height);
 
     // Scan the provided palette image for groups an colors
-    void LoadFromPaletteImage(const QImage& image, bool loadColors, bool loadGroups, bool loadParams);
+    void LoadFromPaletteImage(const QImage& image, bool loadOriginal, bool loadParams);
 
     // Reset to a default state with no colors or groups
     void Reset();
