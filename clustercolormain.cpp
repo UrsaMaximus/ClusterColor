@@ -25,7 +25,7 @@ ClusterColorMain::ClusterColorMain(QWidget *parent)
     ui->recolorImageViewer->setTitle("Recolor");
 
     // Link together all the image view scroll bars
-    linkScrolling(true);
+	linkScrolling(true);
 
     // Connect up the click image to select color signals
     connect(ui->originalImageViewer, SIGNAL(imageClicked(QPoint, ImageViewer*)), this, SLOT(imageClicked(QPoint, ImageViewer*)));
@@ -1143,7 +1143,7 @@ void ClusterColorMain::updateEditorSwatchColors()
         //ui->selectedGroupControlSwatch->setAutoFillBackground(true);
 
         QPalette palRecolor = QMainWindow::palette();
-        palRecolor.setColor(QPalette::Background, selectedGroup->GetRemapColorCentroid());
+		palRecolor.setColor(QPalette::Window, selectedGroup->GetRemapColorCentroid());
         ui->selectedGroupShiftedSwatch->setPalette(palRecolor);
         ui->selectedGroupShiftedSwatch->setAutoFillBackground(true);
 
@@ -1179,9 +1179,9 @@ void ClusterColorMain::showPicker()
      }
 }
 
-void ClusterColorMain::swatchClicked(ClickableSwatch* swatch)
+void ClusterColorMain::swatchClicked(ClickableSwatch*)
 {
-    //ignore(swatch);
+	//ignore(swatch);
     showPicker();
 }
 
@@ -1362,7 +1362,7 @@ void ClusterColorMain::on_actionScan_for_Orphaned_Colors_triggered()
     constructSwatches();
 
     // Select the last swatch if a group was created
-    if (_swatches.size() > (int)origSwatchSize)
+	if ((int)_swatches.size() > (int)origSwatchSize)
         changeSelectedGroup(_swatches[_swatches.size()-1]);
 
     updateControlDisplay();

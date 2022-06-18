@@ -1,5 +1,6 @@
 #include "imageviewer.h"
 #include "ui_imageviewer.h"
+#include <QScroller>
 #include <math.h>
 
 
@@ -13,7 +14,8 @@ ImageViewer::ImageViewer(QWidget *parent) :
 
     ui->baseImage->move(0,0);
     ui->overlayImage->move(0,0);
-    ui->overlayImage->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+	ui->overlayImage->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+
     selectionAnimationTimer = new QTimer(this);
     selectionAnimProgress = 0;
     connect(selectionAnimationTimer, SIGNAL(timeout()), this, SLOT(animateSelection()));
@@ -55,7 +57,7 @@ void ImageViewer::imageClicked(QPointF labelLocation)
 {
     QPointF imagePixelLocation = labelLocation / GetZoomFactor();
     QPoint rounded(floor(imagePixelLocation.x()), floor(imagePixelLocation.y()));
-    imageClicked(rounded, this);
+	emit imageClicked(rounded, this);
 }
 
 void ImageViewer::onImageWheelZoomed(QPointF location, int delta)
@@ -63,7 +65,7 @@ void ImageViewer::onImageWheelZoomed(QPointF location, int delta)
     QPoint viewportLocation = QPoint(location.x() - horizontalScrollBar()->value(),
                                      location.y() - verticalScrollBar()->value());
 
-    imageWheelZoomed(viewportLocation, delta);
+	emit imageWheelZoomed(viewportLocation, delta);
 }
 
 float ImageViewer::GetZoomFactor()
@@ -79,19 +81,19 @@ float ImageViewer::GetZoomFactor()
 void ImageViewer::onHScrollChanged(int hScroll)
 {
     if (!suspendScrollSync)
-        scrollChanged(hScroll, verticalScrollBar()->value());
+		emit scrollChanged(hScroll, verticalScrollBar()->value());
 }
 
 void ImageViewer::onVScrollChanged(int vScroll)
 {
     if (!suspendScrollSync)
-        scrollChanged(horizontalScrollBar()->value(), vScroll);
+		emit scrollChanged(horizontalScrollBar()->value(), vScroll);
 }
 
 void ImageViewer::EmitScrollEvent()
 {
     if (!suspendScrollSync)
-        scrollChanged(horizontalScrollBar()->value(), verticalScrollBar()->value());
+		emit scrollChanged(horizontalScrollBar()->value(), verticalScrollBar()->value());
 }
 
 // Listen to other image viewers

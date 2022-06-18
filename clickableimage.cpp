@@ -21,33 +21,33 @@ void ClickableImage::setOpacityF(float opacity)
 
 void ClickableImage::paintEvent(QPaintEvent *)
 {
-    QStyle *style = QWidget::style();
+	//QStyle *style = QWidget::style();
     QPainter painter(this);
 
     drawFrame(&painter);
     QRect cr = contentsRect();
     cr.adjust(margin(), margin(), -margin(), -margin());
 
-    int align = QStyle::visualAlignment(layoutDirection(), QFlag(alignment()));
+	//int align = QStyle::visualAlignment(layoutDirection(), QFlag(alignment()));
 
-    if (pixmap() && !pixmap()->isNull())
+	if (!pixmap().isNull())
     {
         painter.setRenderHint(QPainter::RenderHint::SmoothPixmapTransform, false);
 
         painter.setOpacity(_opacity);
-        painter.drawPixmap(cr, *pixmap(), pixmap()->rect());
+		painter.drawPixmap(cr, pixmap(), pixmap().rect());
     }
 }
 
 void ClickableImage::wheelEvent(QWheelEvent * event)
 {
-    bool ctrlHeld = QGuiApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ControlModifier);
-    if (ctrlHeld)
+	//bool ctrlHeld = QGuiApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ControlModifier);
+	if(event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))
     {
         // Phaseless (legacy) scrolling just passes through deltas directly
         if (event->phase() == Qt::ScrollPhase::NoScrollPhase && event->source() == Qt::MouseEventNotSynthesized)
         {
-            imageWheelZoomed(event->posF(), event->delta());
+			emit imageWheelZoomed(event->position(), event->angleDelta().y());
         }
 
         // If we have phased scrolling, reset the scroll delta on begin and end
@@ -61,7 +61,7 @@ void ClickableImage::wheelEvent(QWheelEvent * event)
             // If we don't have a pixel delta at all, pass through the deltas directly
             if (event->pixelDelta().isNull() && event->source() == Qt::MouseEventNotSynthesized)
             {
-                imageWheelZoomed(event->posF(), event->delta());
+				emit imageWheelZoomed(event->position(), event->angleDelta().y());
             }
             else if (!event->pixelDelta().isNull())
             {
@@ -70,12 +70,12 @@ void ClickableImage::wheelEvent(QWheelEvent * event)
 
                 if (_scrollDelta.y() > 48)
                 {
-                    imageWheelZoomed(event->posF(), 1);
+					emit imageWheelZoomed(event->position(), 1);
                     _scrollDelta = QPoint();
                 }
                 else if (_scrollDelta.y() < -48)
                 {
-                    imageWheelZoomed(event->posF(), -1);
+					emit imageWheelZoomed(event->position(), -1);
                     _scrollDelta = QPoint();
                 }
             }
@@ -83,14 +83,18 @@ void ClickableImage::wheelEvent(QWheelEvent * event)
 
         event->accept();
     }
+	else
+	{
+		event->ignore();
+	}
 }
 
 void ClickableImage::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::MouseButton::LeftButton)
-        imageClicked(event->localPos());
+		emit imageClicked(event->position());
 }
-void ClickableImage::mouseReleaseEvent(QMouseEvent *event)
+void ClickableImage::mouseReleaseEvent(QMouseEvent *)
 {
 
 }

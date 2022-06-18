@@ -77,7 +77,7 @@ void ExponentialSlider::setEndcapBehavior(bool lowerEndcap, float lowerEndcapVal
     _lowerEndcapValue = lowerEndcapValue;
     _upperEndcapValue = upperEndcapValue;
 
-     onValueChanged(value());
+	 emit onValueChanged(value());
 }
 
 void ExponentialSlider::setExponentialMapping(float base, float exponentMin, float exponentMax)
@@ -86,20 +86,20 @@ void ExponentialSlider::setExponentialMapping(float base, float exponentMin, flo
     _exponentMin = exponentMin;
     _exponentMax = exponentMax;
 
-    onValueChanged(value());
+	emit onValueChanged(value());
 }
 
-void ExponentialSlider::on_horizontalSlider_valueChanged(int slider)
+void ExponentialSlider::on_horizontalSlider_valueChanged(int)
 {
     ui->valueLabel->setText(QString("%1x").arg(QString::number(abs(value()), 'f', 2)));
-    onValueChanged(value());
+	emit onValueChanged(value());
 }
 
-void ExponentialSlider::on_signLabel_linkActivated(const QString &link)
+void ExponentialSlider::on_signLabel_linkActivated(const QString&)
 {
     _negative = !_negative;
     updateSignLabel();
-    onValueChanged(value());
+	emit onValueChanged(value());
 }
 
 void ExponentialSlider::updateSignLabel()

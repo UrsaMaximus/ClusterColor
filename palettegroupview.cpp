@@ -58,12 +58,12 @@ void PaletteGroupView::updateSwatchColors()
     {
         // set backgrounds
         QPalette pal = palette();
-        pal.setColor(QPalette::Background, _paletteGroup->GetOriginalColorCentroid());
+		pal.setColor(QPalette::Window, _paletteGroup->GetOriginalColorCentroid());
         ui->colorSwatch->setPalette(pal);
         ui->colorSwatch->setAutoFillBackground(true);
 
         QPalette palRecolor = palette();
-        palRecolor.setColor(QPalette::Background, _paletteGroup->GetRemapColorCentroid());
+		palRecolor.setColor(QPalette::Window, _paletteGroup->GetRemapColorCentroid());
         ui->recolorSwatch->setPalette(palRecolor);
         ui->recolorSwatch->setAutoFillBackground(true);
     }

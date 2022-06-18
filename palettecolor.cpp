@@ -159,3 +159,14 @@ PaletteColor::KMeansVector PaletteColor::scalarDivide(const PaletteColor::KMeans
 
     return KMeansVector{a[0] / b, a[1] / b, a[2] / b };
 }
+
+void sortColorListByLuma(std::vector<std::shared_ptr<PaletteColor>>& colors)
+{
+	std::stable_sort(colors.begin(), colors.end(), [](const std::shared_ptr<PaletteColor>& color1, const std::shared_ptr<PaletteColor>& color2)
+	{
+		float h1, h2, s1, s2, v1, v2;
+		color1->GetColor().getHslF(&h1, &s1, &v1);
+		color2->GetColor().getHslF(&h2, &s2, &v2);
+		return (v1 < v2);
+	});
+}

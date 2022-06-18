@@ -4,7 +4,6 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
     a.setApplicationName(QString("ClusterColor"));
     a.setOrganizationName(QString("GreatestBear"));

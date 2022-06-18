@@ -91,16 +91,16 @@
      <x>10</x>
      <y>210</y>
      <width>381</width>
-     <height>20</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>18</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>ClusterColor v1.0</string>
+    <string>ClusterColor v1.1</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -117,11 +117,11 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>8</pointsize>
+     <pointsize>11</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ClusterColor is © 2020 Greatest Bear Studios. This application uses the ColorSpace library by Berendea Nicolae. Both ClusterColor and ColorSpace are free software, and are made available for use and redistribution under the MIT license. See LICENSE.txt for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ClusterColor is © 2022 Greatest Bear Studios. This application uses the ColorSpace library by Berendea Nicolae. Both ClusterColor and ColorSpace are free software, and are made available for use and redistribution under the MIT license. See LICENSE.txt for more details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

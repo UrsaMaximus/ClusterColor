@@ -26,18 +26,18 @@ static bool isGroupDelimeter(const QColor& pxColor)
     return pxColor.red() == 255 && pxColor.green() == 255 && pxColor.blue() == 255 && pxColor.alpha() == 0;
 }
 
-static std::vector<QColor> readStripFromImage(const QImage& image, int baseX, int baseY, int offset, int length)
-{
-    int start = baseY * image.width() + baseX + offset;
-    std::vector<QColor> strip(length);
-    for (int i=0; i < length; i++)
-    {
-        int x = (i + start) % image.width();
-        int y = (i + start) / image.width();
-        strip[i] = image.pixelColor(x,y);
-    }
-    return strip;
-}
+//static std::vector<QColor> readStripFromImage(const QImage& image, int baseX, int baseY, int offset, int length)
+//{
+//    int start = baseY * image.width() + baseX + offset;
+//    std::vector<QColor> strip(length);
+//    for (int i=0; i < length; i++)
+//    {
+//        int x = (i + start) % image.width();
+//        int y = (i + start) / image.width();
+//        strip[i] = image.pixelColor(x,y);
+//    }
+//    return strip;
+//}
 
 static int scanForStripFromImage(const QImage& image, int offset, std::vector<QColor>& strip)
 {
@@ -262,10 +262,11 @@ void Palette::removeEmptyGroups()
 
 ColorList Palette::getSpacedColorList()
 {
-    ColorList spaced;
+	ColorList spaced;
     for (auto& group : _groups)
     {
         ColorList colors = group->GetAllColors();
+		sortColorListByLuma(colors);
         for (auto& color : colors)
         {
             spaced.push_back(color);

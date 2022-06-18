@@ -5,11 +5,11 @@ ClickableSwatch::ClickableSwatch(QWidget *parent) : QFrame(parent)
 
 }
 
-void ClickableSwatch::mousePressEvent(QMouseEvent *event)
+void ClickableSwatch::mousePressEvent(QMouseEvent*)
 {
 
 }
-void ClickableSwatch::mouseReleaseEvent(QMouseEvent *event)
+void ClickableSwatch::mouseReleaseEvent(QMouseEvent*)
 {
-    swatchClicked(this);
+	emit swatchClicked(this);
 }

@@ -127,6 +127,8 @@ typedef std::vector<std::shared_ptr<PaletteColor>> ColorList;
 typedef std::map<QRgb, std::shared_ptr<PaletteColor>> ColorMap;
 typedef std::map<QRgb, PaletteColor*> TempColorMap;
 
+void sortColorListByLuma(std::vector<std::shared_ptr<PaletteColor>>& colors);
+
 inline ColorMap ColorMapFromColorList(const ColorList& list)
 {
     ColorMap map;
