@@ -36,6 +36,7 @@ SOURCES += \
     linearslider.cpp \
     main.cpp \
     clustercolormain.cpp \
+    manualrecolortool.cpp \
     palette.cpp \
     palettecolor.cpp \
     palettegroup.cpp \
@@ -55,6 +56,7 @@ HEADERS += \
     exponentialslider.h \
     imageviewer.h \
     linearslider.h \
+    manualrecolortool.h \
     palette.h \
     palettecolor.h \
     palettegroup.h \
@@ -68,6 +70,7 @@ FORMS += \
     exponentialslider.ui \
     imageviewer.ui \
     linearslider.ui \
+    manualrecolortool.ui \
     palettegroupview.ui \
     preferences.ui
 

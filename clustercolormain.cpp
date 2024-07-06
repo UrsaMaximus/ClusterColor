@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+#include "manualrecolortool.h"
 
 ClusterColorMain::ClusterColorMain(QWidget *parent)
     : QMainWindow(parent)
@@ -1402,3 +1403,33 @@ void ClusterColorMain::on_actionShow_Missing_Color_Warning_toggled(bool arg1)
 {
     _prefs->SetSimpleBoolSetting("ShowOrphanWarning", arg1);
 }
+
+void ClusterColorMain::on_actionManual_Recolor_triggered()
+{
+	// We effectively need to "export" everything to in-memory structures, then show the manual recolor tool
+	std::map<QString, std::shared_ptr<QImage>> indexImages;
+	std::shared_ptr<QImage> originalPalette;
+	std::shared_ptr<QImage> recolorPalette;
+
+	try
+	{
+		for (auto& colorImage : images)
+		{
+			indexImages[colorImage.first] = palette->CreateIndexImage(*colorImage.second, _prefs->PaletteExportIncludeMetadata());
+		}
+		originalPalette = palette->SaveToPaletteImage(false, _prefs->PaletteExportIncludeMetadata(), _prefs->PaletteExportAutosize(), _prefs->PaletteExportWidth(), _prefs->PaletteExportHeight());
+		recolorPalette = palette->SaveToPaletteImage(true,  _prefs->PaletteExportIncludeMetadata(), _prefs->PaletteExportAutosize(), _prefs->PaletteExportWidth(), _prefs->PaletteExportHeight());
+	}
+	catch (std::runtime_error& err)
+	{
+		QMessageBox msgBox;
+		msgBox.setText(err.what());
+		msgBox.exec();
+		return;
+	}
+
+	// Open the Manual Recolor interface
+	ManualRecolorTool* manual = new ManualRecolorTool(indexImages, originalPalette, recolorPalette, this);
+	manual->show();
+}
+

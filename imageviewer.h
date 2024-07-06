@@ -30,11 +30,14 @@ public:
     void ZoomIn(QPoint pivot);
     void ZoomOut(QPoint pivot);
     void Zoom1x();
+	void ZoomFit();
 
     void EmitScrollEvent();
 
     QString title();
     void setTitle(QString);
+	int maxZoom = 8;
+	int minZoom = -8;
 
 signals:
     void imageClicked(QPoint, ImageViewer* source);
@@ -68,17 +71,17 @@ private:
     QTimer* selectionAnimationTimer;
     float selectionAnimProgress;
 
-    int zoomLevel;
-     void refreshImageZoom();
-     float GetZoomFactor();
-     QScrollBar* horizontalScrollBar();
-     QScrollBar* verticalScrollBar();
+	int zoomLevel;
+	void refreshImageZoom();
+	float GetZoomFactor();
+	QScrollBar* horizontalScrollBar();
+	QScrollBar* verticalScrollBar();
 
-     // Fancy scroll functions
-     float centerXPx, centerYPx;
-     QPoint zoomPivot;
-     bool suspendScrollSync;
-     void storeRelativeScroll(QPoint pivot);
+	// Fancy scroll functions
+	float centerXPx, centerYPx;
+	QPoint zoomPivot;
+	bool suspendScrollSync;
+	void storeRelativeScroll(QPoint pivot);
 
 
 };

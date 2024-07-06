@@ -22,6 +22,13 @@ public:
     ClusterColorMain(QWidget *parent = nullptr);
     ~ClusterColorMain();
 
+	// Singletons other forms might want
+	Preferences* _prefs;
+
+	// Global document state
+	std::unique_ptr<Palette> palette;
+	std::map<QString, std::shared_ptr<QImage>> images;
+
 private slots:
 
     // Group generation slots
@@ -134,9 +141,10 @@ private slots:
 
     void on_actionShow_Missing_Color_Warning_toggled(bool arg1);
 
+	void on_actionManual_Recolor_triggered();
+
 private:
     Ui::ClusterColorMain *ui;
-
 
     bool updateOriginalDisplayEnable;
     bool updateControlDisplayEnable;
@@ -165,35 +173,23 @@ private:
     // Show the color picker for setting HSV shift
     void showPicker();
 
-    Preferences* _prefs;
-    QColorDialog* _colorPicker;
-    AutomaticGroupGeneration* _groupGen;
-
-    PaletteGroupRemapParams _originalRemapParams; // store remap params temporarily while the color picker is open
-
-    std::shared_ptr<QImage> getSelectedImage();
-    void populateImageMenu();
+	void populateImageMenu();
 
     void linkScrolling(bool bypassVisibilityCheck = false);
-    std::vector<QMetaObject::Connection> scrollLinks;
 
     void updateUIEnabledState();
 
-    QActionGroup* selectedImageActionGroup;
-
-    std::unique_ptr<Palette> palette;
-    std::unique_ptr<Palette> backupPalette;
-
-    ColorList selectedColors;
-    std::shared_ptr<PaletteGroup> selectedGroup;
-    QString selectedImage;
-    std::map<QString, std::shared_ptr<QImage>> images;
-
-    bool _paletteExportAutosize;
-    int _paletteExportWidth;
-    int _paletteExportHeight;
-    bool _paletteExportIncludeMetadata;
-
+	// Local editor state
+	ColorList selectedColors;
+	QString selectedImage;
+	std::shared_ptr<QImage> getSelectedImage();
+	std::shared_ptr<PaletteGroup> selectedGroup;
+	QActionGroup* selectedImageActionGroup;
+	std::unique_ptr<Palette> backupPalette;
+	QColorDialog* _colorPicker;
+	std::vector<QMetaObject::Connection> scrollLinks;
+	AutomaticGroupGeneration* _groupGen;
+	PaletteGroupRemapParams _originalRemapParams; // store remap params temporarily while the color picker is open
     std::vector<PaletteGroupView*> _swatches;
 };
 #endif // CLUSTERCOLORMAIN_H

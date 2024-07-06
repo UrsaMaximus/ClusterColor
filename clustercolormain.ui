@@ -646,7 +646,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -719,10 +719,17 @@
     <addaction name="separator"/>
     <addaction name="actionScan_for_Orphaned_Colors"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionManual_Recolor"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuClusters"/>
    <addaction name="menuView"/>
+   <addaction name="menuTools"/>
    <addaction name="menuImages"/>
   </widget>
   <action name="actionOpen_Color_Image">
@@ -984,6 +991,11 @@
    </property>
    <property name="text">
     <string>Show Missing Color Warning</string>
+   </property>
+  </action>
+  <action name="actionManual_Recolor">
+   <property name="text">
+    <string>Manual Recolor...</string>
    </property>
   </action>
  </widget>

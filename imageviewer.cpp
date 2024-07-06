@@ -133,8 +133,8 @@ void ImageViewer::ZoomIn(QPoint pivot)
     storeRelativeScroll(pivot);
 
     zoomLevel+=1;
-    if (zoomLevel > 8)
-        zoomLevel = 8;
+	if (zoomLevel > maxZoom)
+		zoomLevel = maxZoom;
     refreshImageZoom();
 
     QTimer::singleShot(0, this, SLOT(applyRelativeScroll()));
@@ -145,8 +145,8 @@ void ImageViewer::ZoomOut(QPoint pivot)
     storeRelativeScroll(pivot);
 
     zoomLevel-=1;
-    if (zoomLevel < -8)
-        zoomLevel = -8;
+	if (zoomLevel < minZoom)
+		zoomLevel = minZoom;
 
     refreshImageZoom();
 
@@ -174,6 +174,20 @@ void ImageViewer::Zoom1x()
     refreshImageZoom();
 
     QTimer::singleShot(0, this, SLOT(applyRelativeScroll()));
+}
+
+void ImageViewer::ZoomFit()
+{
+	QPoint pivot(ui->scrollArea->width() / 2.0f, ui->scrollArea->height() / 2.0f);
+	storeRelativeScroll(pivot);
+
+	auto wZF = ceil(log2f((float)ui->scrollArea->width() / (float)image1x->width()));
+	auto hZF = ceil(log2f((float)ui->scrollArea->height() / (float)image1x->height()));
+
+	zoomLevel =  (int)std::min(wZF,hZF);
+	refreshImageZoom();
+
+	QTimer::singleShot(0, this, SLOT(applyRelativeScroll()));
 }
 
 void ImageViewer::SetImage(const QImage& image)
